@@ -15,7 +15,7 @@ public class JdbcContext {
         this.dataSource = dataSource;
     }
 
-    public void executeSql(final String query) throws SQLException{
+    public void executeDeleteAll(final String query) throws SQLException{
         workWithStatementStrategy(
                 new StatementStrategy() {
                     @Override
@@ -26,7 +26,7 @@ public class JdbcContext {
         );
     }
 
-    public void executeSql(final String query, final User user) throws SQLException{
+    public void executeAdd(final String query, final User user) throws SQLException{
         workWithStatementStrategy(
                 new StatementStrategy() {
                     @Override
