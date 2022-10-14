@@ -1,16 +1,17 @@
 package tobyspring.user.dao;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tobyspring.user.dao.config.DaoFactory;
 import tobyspring.user.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.*;
@@ -21,11 +22,12 @@ import static org.assertj.core.api.Assertions.*;
 // SpringExtension이라는 JUnit용 테스트 컨텍스트 프레임워크 확장 클래스를 지정함
 @ExtendWith(SpringExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// 스프링의 테스트 컨텍스프 프레임워크에게 해당 클래스의 테스트에서 컨테이너의 상태를 변경한다는 것을 알려준다.
+// 메소드에 붙여줄 수도 있다. 근데 차라리 다른 설정 파일을 만들어서 하는게 좋지 않을까?
+@DirtiesContext
 public class UserDaoTest {
 
     @Autowired
-    private ApplicationContext context;
-
     private UserDao dao;
 
     private User user1;
@@ -35,9 +37,9 @@ public class UserDaoTest {
     // 모든 테스트 메소드가 실행되기 전에 한 번 호출됨
     @BeforeAll
     public void setUp() {
-//        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-        this.dao = this.context.getBean("userDao", UserDao.class);
-//        System.out.println("before all");
+        // 테스트용 DataSource 구현체로 바꿔 사용하기
+        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost/tobyspring", "root", "19980703", true);
+        dao.setDataSource(dataSource);
 
         user1 = new User("1", "1", "1");
         user2 = new User("2", "2", "2");

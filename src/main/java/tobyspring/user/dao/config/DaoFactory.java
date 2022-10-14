@@ -1,8 +1,10 @@
-package tobyspring.user.dao;
+package tobyspring.user.dao.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import tobyspring.user.dao.JdbcContext;
+import tobyspring.user.dao.UserDao;
 
 import javax.sql.DataSource;
 

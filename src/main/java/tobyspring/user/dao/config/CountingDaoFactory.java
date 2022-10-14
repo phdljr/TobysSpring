@@ -1,4 +1,4 @@
-package tobyspring.user.dao;
+package tobyspring.user.dao.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

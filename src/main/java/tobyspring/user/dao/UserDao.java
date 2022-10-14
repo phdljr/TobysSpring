@@ -1,6 +1,9 @@
 package tobyspring.user.dao;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import tobyspring.user.dao.jdbcstrategy.AddStatement;
+import tobyspring.user.dao.jdbcstrategy.DeleteAllStatement;
+import tobyspring.user.dao.jdbcstrategy.StatementStrategy;
 import tobyspring.user.domain.User;
 
 import javax.sql.DataSource;
@@ -8,24 +11,26 @@ import java.sql.*;
 
 public class UserDao {
 
+    private JdbcContext jdbcContext;
     private DataSource dataSource;
 
     public void setDataSource(DataSource dataSource) {
+        this.jdbcContext = new JdbcContext();
+        this.jdbcContext.setDataSource(dataSource);
         this.dataSource = dataSource;
     }
 
     public void add(User user) throws SQLException {
-        Connection c = dataSource.getConnection();
-
-        PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
-        ps.setString(1, user.getId());
-        ps.setString(2, user.getName());
-        ps.setString(3, user.getPassword());
-
-        ps.executeUpdate();
-
-        ps.close();
-        c.close();
+//        jdbcContext.workWithStatementStrategy(new StatementStrategy() {
+//            @Override
+//            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+//                PreparedStatement ps = c.prepareStatement("INSERT INTO USERS VALUES (?, ?, ?)");
+//                ps.setString(1, user.getId());
+//                ps.setString(2, user.getName());
+//                ps.setString(3, user.getPassword());
+//                return ps;
+//            }
+//        });
     }
 
     public User get(String id) throws SQLException {
@@ -54,11 +59,14 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        try(Connection c = dataSource.getConnection();
-            PreparedStatement ps = c.prepareStatement("DELETE FROM USERS");) {
-
-            ps.executeUpdate();
-        }
+//        jdbcContext.workWithStatementStrategy(new StatementStrategy() {
+//            @Override
+//            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+//                PreparedStatement ps = c.prepareStatement("DELETE FROM USERS");
+//                return ps;
+//            }
+//        });
+        jdbcContext.executeSql("DELETE FROM USERS");
     }
 
     public int getCount() throws SQLException {
