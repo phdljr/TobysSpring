@@ -51,8 +51,6 @@ public class Calculator {
     }
 
     public String concatenate(String filepath) throws IOException{
-        LineCallback<String> concatenateCallback = (line, value) -> value + line;
-
-        return lineReadTemplate(filepath, concatenateCallback, "");
+        return lineReadTemplate(filepath, (line, value) -> value + line, "");
     }
 }
