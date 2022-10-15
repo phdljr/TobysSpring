@@ -3,14 +3,21 @@ package tobyspring.service;
 import tobyspring.dao.UserDao;
 import tobyspring.domain.Level;
 import tobyspring.domain.User;
+import tobyspring.service.policy.UserLevelUpgradePolicy;
 
 import java.util.List;
 
 public class UserService {
+
     UserDao userDao;
+    UserLevelUpgradePolicy userLevelUpgradePolicy;
 
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
+    }
+
+    public void setUserLevelUpgradePolicy(UserLevelUpgradePolicy userLevelUpgradePolicy) {
+        this.userLevelUpgradePolicy = userLevelUpgradePolicy;
     }
 
     public void upgradeLevels(){
@@ -22,18 +29,15 @@ public class UserService {
         });
     }
 
+    public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
+    public static final int MIN_RECCOMEND_FOR_GOLD = 30;
+
     private boolean canUpgradeLevel(User user){
-        Level currentLevel = user.getLevel();
-        switch (currentLevel){
-            case BASIC: return (user.getLogin() >= 50);
-            case SILVER: return (user.getRecommend() >= 30);
-            case GOLD: return false;
-            default: throw new IllegalArgumentException("Unknown Level: " + currentLevel);
-        }
+        return userLevelUpgradePolicy.canUpgradeLevel(user);
     }
 
     private void upgradeLevel(User user){
-        user.upgradeLevel();
+        userLevelUpgradePolicy.upgradeLevel(user);
         userDao.update(user);
     }
 
