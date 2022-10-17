@@ -7,18 +7,20 @@ public class User {
     Level level;
     int login;
     int recommend;
+    String email;
 
     // 자바빈의 규약을 따르는 클래스에는 기본 생성자가 필수다.
     public User() {
     }
 
-    public User(String id, String name, String password, Level level, int login, int recommend) {
+    public User(String id, String name, String password, Level level, int login, int recommend, String email) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.level = level;
         this.login = login;
         this.recommend = recommend;
+        this.email = email;
     }
 
     public String getId() {
@@ -67,6 +69,14 @@ public class User {
 
     public void setRecommend(int recommend) {
         this.recommend = recommend;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     // User 클래스는 DAO와 Service 계층에서도 많이 쓰이기 때문에

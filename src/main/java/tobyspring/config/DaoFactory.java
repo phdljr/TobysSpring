@@ -2,11 +2,15 @@ package tobyspring.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.mail.MailSender;
+import org.springframework.transaction.PlatformTransactionManager;
 import tobyspring.dao.UserDaoJdbc;
+import tobyspring.service.mail.DummyMailSender;
+import tobyspring.service.UserService;
 import tobyspring.service.policy.UserLevelUpgradeNormalPolicy;
 import tobyspring.service.policy.UserLevelUpgradePolicy;
-import tobyspring.service.UserService;
 
 import javax.sql.DataSource;
 
@@ -35,6 +39,8 @@ public class DaoFactory {
         UserService userService = new UserService();
         userService.setUserDao(userDao());
         userService.setUserLevelUpgradePolicy(userLevelUpgradePolicy());
+        userService.setTransactionManager(transactionManager());
+        userService.setMailSender(mailSender());
         return userService;
     }
 
@@ -43,5 +49,20 @@ public class DaoFactory {
         UserLevelUpgradeNormalPolicy userLevelUpgradePolicy = new UserLevelUpgradeNormalPolicy();
         userLevelUpgradePolicy.setUserDao(userDao());
         return userLevelUpgradePolicy;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager(){
+        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource());
+        return transactionManager;
+    }
+
+    @Bean
+    public MailSender mailSender(){
+//        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+//        mailSender.setHost("mail.server.com");
+
+        DummyMailSender mailSender = new DummyMailSender();
+        return mailSender;
     }
 }

@@ -42,9 +42,9 @@ public class UserDaoTest {
     @BeforeEach
     public void setUp() {
         dao.deleteAll();
-        user1 = new User("1", "1", "1", Level.BASIC, 1, 1);
-        user2 = new User("2", "2", "2", Level.SILVER, 2, 2);
-        user3 = new User("3", "3", "3", Level.GOLD, 3, 3);
+        user1 = new User("1", "1", "1", Level.BASIC, 1, 1, "111");
+        user2 = new User("2", "2", "2", Level.SILVER, 2, 2, "222");
+        user3 = new User("3", "3", "3", Level.GOLD, 3, 3, "333");
     }
 
     @Test
