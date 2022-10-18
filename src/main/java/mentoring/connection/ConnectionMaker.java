@@ -1,4 +1,4 @@
-package tobyspring.dao.connection;
+package mentoring.connection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
