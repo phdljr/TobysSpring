@@ -6,7 +6,6 @@ import tobyspring.dao.UserDao;
 import tobyspring.domain.Level;
 import tobyspring.domain.User;
 import tobyspring.service.policy.UserLevelUpgradePolicy;
-import tobyspring.service.policy.UserService;
 
 import java.util.List;
 

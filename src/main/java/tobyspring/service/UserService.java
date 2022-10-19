@@ -1,4 +1,4 @@
-package tobyspring.service.policy;
+package tobyspring.service;
 
 import tobyspring.domain.User;
 

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.PlatformTransactionManager;
 import tobyspring.config.DaoFactory;
@@ -19,14 +18,12 @@ import tobyspring.domain.User;
 import tobyspring.exception.TestUserServiceException;
 import tobyspring.service.policy.UserLevelUpgradeNormalPolicy;
 import tobyspring.service.policy.UserLevelUpgradePolicy;
-import tobyspring.service.policy.UserService;
-import tobyspring.service.policy.UserServiceTx;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static tobyspring.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
@@ -198,9 +195,15 @@ class UserServiceTest {
         testUserService.setUserLevelUpgradePolicy(userLevelUpgradePolicy);
         testUserService.setMailSender(mailSender);
 
-        UserServiceTx txUserService = new UserServiceTx();
-        txUserService.setUserService(testUserService);
-        txUserService.setTransactionManager(transactionManager);
+        TransactionHandler txHandler = new TransactionHandler();
+        txHandler.setPattern("upgradeLevels");
+        txHandler.setTarget(testUserService);
+        txHandler.setTransactionManager(transactionManager);
+        UserService txUserService = (UserService) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{UserService.class},
+                txHandler
+        );
 
         userDao.deleteAll();
         users.stream().forEach(user -> userDao.add(user));

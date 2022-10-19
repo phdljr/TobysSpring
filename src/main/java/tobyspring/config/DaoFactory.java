@@ -11,8 +11,7 @@ import tobyspring.service.UserServiceImpl;
 import tobyspring.service.mail.DummyMailSender;
 import tobyspring.service.policy.UserLevelUpgradeNormalPolicy;
 import tobyspring.service.policy.UserLevelUpgradePolicy;
-import tobyspring.service.policy.UserService;
-import tobyspring.service.policy.UserServiceTx;
+import tobyspring.service.UserServiceTx;
 
 import javax.sql.DataSource;
 
