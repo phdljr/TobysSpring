@@ -7,10 +7,12 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.mail.MailSender;
 import org.springframework.transaction.PlatformTransactionManager;
 import tobyspring.dao.UserDaoJdbc;
+import tobyspring.service.UserServiceImpl;
 import tobyspring.service.mail.DummyMailSender;
-import tobyspring.service.UserService;
 import tobyspring.service.policy.UserLevelUpgradeNormalPolicy;
 import tobyspring.service.policy.UserLevelUpgradePolicy;
+import tobyspring.service.policy.UserService;
+import tobyspring.service.policy.UserServiceTx;
 
 import javax.sql.DataSource;
 
@@ -35,12 +37,19 @@ public class DaoFactory {
     }
 
     @Bean
-    public UserService userService(){
-        UserService userService = new UserService();
-        userService.setUserDao(userDao());
-        userService.setUserLevelUpgradePolicy(userLevelUpgradePolicy());
+    public UserServiceTx userService(){
+        UserServiceTx userService = new UserServiceTx();
+        userService.setUserService(userServiceImpl());
         userService.setTransactionManager(transactionManager());
+        return userService;
+    }
+
+    @Bean
+    public UserServiceImpl userServiceImpl(){
+        UserServiceImpl userService = new UserServiceImpl();
+        userService.setUserDao(userDao());
         userService.setMailSender(mailSender());
+        userService.setUserLevelUpgradePolicy(new UserLevelUpgradeNormalPolicy());
         return userService;
     }
 

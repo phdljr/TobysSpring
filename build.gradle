@@ -22,6 +22,8 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.23.1'
     // https://mvnrepository.com/artifact/org.springframework/spring-test
     testImplementation 'org.springframework:spring-test:5.3.23'
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testImplementation 'org.mockito:mockito-core:4.8.1'
 
     // https://mvnrepository.com/artifact/javax.mail/javax.mail-api
     implementation 'javax.mail:javax.mail-api:1.6.2'
@@ -31,6 +33,7 @@ dependencies {
     implementation 'javax.mail:com.springsource.javax.mail:1.4.5'
     // https://mvnrepository.com/artifact/org.springframework/spring-context-support
     implementation 'org.springframework:spring-context-support:5.3.23'
+
 
 }
 

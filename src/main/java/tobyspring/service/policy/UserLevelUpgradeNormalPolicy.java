@@ -4,8 +4,8 @@ import tobyspring.dao.UserDao;
 import tobyspring.domain.Level;
 import tobyspring.domain.User;
 
-import static tobyspring.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
-import static tobyspring.service.UserService.MIN_RECCOMEND_FOR_GOLD;
+import static tobyspring.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
+import static tobyspring.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
 public class UserLevelUpgradeNormalPolicy implements UserLevelUpgradePolicy{
 
