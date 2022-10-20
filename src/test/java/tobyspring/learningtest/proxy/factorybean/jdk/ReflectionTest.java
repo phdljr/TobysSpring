@@ -1,10 +1,12 @@
-package learningtest.template.jdk;
+package tobyspring.learningtest.proxy.factorybean.jdk;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
-import tobyspring.learningtest.reflection.Hello;
-import tobyspring.learningtest.reflection.HelloTarget;
-import tobyspring.learningtest.reflection.HelloUppercase;
-import tobyspring.learningtest.reflection.UppercaseHandler;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
+import tobyspring.learningtest.reflection.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -55,5 +57,33 @@ public class ReflectionTest {
         assertThat(hello.sayHello("Toby")).isEqualTo("HELLO TOBY");
         assertThat(hello.sayHi("Toby")).isEqualTo("HI TOBY");
         assertThat(hello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");
+    }
+
+    @Test
+    void proxyFactoryBean() {
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(new HelloTarget());
+        pfBean.addAdvice(new UppercaseAdvice());
+
+        Hello proxiedHello = (Hello)pfBean.getObject();
+        assertThat(proxiedHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
+        assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HI TOBY");
+        assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");
+    }
+
+    @Test
+    void pointcutAdvisor() {
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(new HelloTarget());
+
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        pointcut.setMappedName("sayH*");
+        // pointcut과 advice를 advisor로 하나로 묶어서 한 번에 추가
+        pfBean.addAdvisor(new DefaultPointcutAdvisor(pointcut, new UppercaseAdvice()));
+
+        Hello proxiedHello = (Hello)pfBean.getObject();
+        assertThat(proxiedHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
+        assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HI TOBY");
+        assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("Thank You Toby");
     }
 }

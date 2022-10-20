@@ -1,5 +1,8 @@
 package tobyspring.config;
 
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -7,11 +10,11 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.mail.MailSender;
 import org.springframework.transaction.PlatformTransactionManager;
 import tobyspring.dao.UserDaoJdbc;
-import tobyspring.service.UserServiceImpl;
+import tobyspring.service.*;
 import tobyspring.service.mail.DummyMailSender;
 import tobyspring.service.policy.UserLevelUpgradeNormalPolicy;
 import tobyspring.service.policy.UserLevelUpgradePolicy;
-import tobyspring.service.UserServiceTx;
+import tobyspring.service.proxy.TransactionAdvice;
 
 import javax.sql.DataSource;
 
@@ -33,14 +36,6 @@ public class DaoFactory {
         dataSource.setUsername("root");
         dataSource.setPassword("19980703");
         return dataSource;
-    }
-
-    @Bean
-    public UserServiceTx userService(){
-        UserServiceTx userService = new UserServiceTx();
-        userService.setUserService(userServiceImpl());
-        userService.setTransactionManager(transactionManager());
-        return userService;
     }
 
     @Bean
@@ -72,5 +67,35 @@ public class DaoFactory {
 
         DummyMailSender mailSender = new DummyMailSender();
         return mailSender;
+    }
+
+    @Bean
+    public ProxyFactoryBean userService(){
+        ProxyFactoryBean factoryBean = new ProxyFactoryBean();
+        factoryBean.setTarget(userServiceImpl());
+        factoryBean.setInterceptorNames("transactionAdvisor");
+        return factoryBean;
+    }
+
+    @Bean
+    public TransactionAdvice transactionAdvice(){
+        TransactionAdvice transactionAdvice = new TransactionAdvice();
+        transactionAdvice.setTransactionManager(transactionManager());
+        return transactionAdvice;
+    }
+
+    @Bean
+    public NameMatchMethodPointcut transactionPointcut(){
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        pointcut.setMappedName("upgrade*");
+        return pointcut;
+    }
+
+    @Bean
+    public DefaultPointcutAdvisor transactionAdvisor(){
+        DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
+        advisor.setPointcut(transactionPointcut());
+        advisor.setAdvice(transactionAdvice());
+        return advisor;
     }
 }

@@ -1,4 +1,4 @@
-package learningtest.template;
+package tobyspring.learningtest.template;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

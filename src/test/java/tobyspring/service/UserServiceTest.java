@@ -1,14 +1,16 @@
 package tobyspring.service;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.PlatformTransactionManager;
 import tobyspring.config.DaoFactory;
@@ -36,21 +38,19 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
 
     @Autowired
-    private UserService userService;
+    private ApplicationContext context;
     @Autowired
-    private UserServiceImpl userServiceImpl;
+    private UserService userService;
     @Autowired
     private UserDao userDao;
     @Autowired
     private UserLevelUpgradePolicy userLevelUpgradePolicy;
     @Autowired
-    private PlatformTransactionManager transactionManager;
-    @Autowired
     private MailSender mailSender;
 
     private List<User> users;
 
-    @BeforeAll
+    @BeforeEach
     public void setUp(){
         users = Arrays.asList(
                 new User("1", "1", "1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER-1, 0, "111"),
@@ -189,21 +189,19 @@ class UserServiceTest {
     }
 
     @Test
+    @DirtiesContext
     void upgradeAllOrNothing() throws Exception{
         TestUserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(userDao);
         testUserService.setUserLevelUpgradePolicy(userLevelUpgradePolicy);
         testUserService.setMailSender(mailSender);
 
-        TransactionHandler txHandler = new TransactionHandler();
-        txHandler.setPattern("upgradeLevels");
-        txHandler.setTarget(testUserService);
-        txHandler.setTransactionManager(transactionManager);
-        UserService txUserService = (UserService) Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class[]{UserService.class},
-                txHandler
-        );
+        // 팩토리 빈을 가져와서 타겟을 바꿔서 적용
+        ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class);
+        txProxyFactoryBean.setTarget(testUserService);
+
+        // 팩토리 빈을 통해 다이내믹 프록시 생성
+        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
 
         userDao.deleteAll();
         users.stream().forEach(user -> userDao.add(user));
@@ -221,6 +219,7 @@ class UserServiceTest {
     @Test
     void mockUpgradeLevels() {
         UserServiceImpl userServiceImpl = new UserServiceImpl();
+        userServiceImpl.setUserLevelUpgradePolicy(new UserLevelUpgradeNormalPolicy());
 
         // 목 객체 생성. 생성만 해두면 이 객체는 아무런 역할도 하지 않는다.
         UserDao mockUserDao = mock(UserDao.class);
@@ -252,5 +251,14 @@ class UserServiceTest {
         List<SimpleMailMessage> mailMessages = mailMessageArg.getAllValues();
         assertThat(mailMessages.get(0).getTo()[0]).isEqualTo(users.get(1).getEmail());
         assertThat(mailMessages.get(1).getTo()[0]).isEqualTo(users.get(3).getEmail());
+    }
+
+    @Test
+    @DisplayName("같은 프록시를 사용하는지 확인")
+    void sameProxy(){
+        UserService bean1 = context.getBean("userService", UserService.class);
+        UserService bean2 = context.getBean("userService", UserService.class);
+
+        assertThat(bean1).isEqualTo(bean2);
     }
 }

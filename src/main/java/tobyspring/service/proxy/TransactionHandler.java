@@ -1,4 +1,4 @@
-package tobyspring.service;
+package tobyspring.service.proxy;
 
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;

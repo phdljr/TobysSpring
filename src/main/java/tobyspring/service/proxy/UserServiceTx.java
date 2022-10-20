@@ -1,9 +1,10 @@
-package tobyspring.service;
+package tobyspring.service.proxy;
 
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import tobyspring.domain.User;
+import tobyspring.service.UserService;
 
 public class UserServiceTx implements UserService {
 
