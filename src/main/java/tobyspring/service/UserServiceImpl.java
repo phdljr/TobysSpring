@@ -59,10 +59,10 @@ public class UserServiceImpl implements UserService {
         mailSender.send(mailMessage);
     }
 
-    public void add(User user) {
-        if(user.getLevel() == null){
-            user.setLevel(Level.BASIC);
-        }
-        userDao.add(user);
-    }
+//    public void add(User user) {
+//        if(user.getLevel() == null){
+//            user.setLevel(Level.BASIC);
+//        }
+//        userDao.add(user);
+//    }
 }
